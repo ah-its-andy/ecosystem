@@ -13,6 +13,7 @@ import (
 type Application interface {
 	UseRouteMap(f func(*RouteMap))
 	UseInterceptors(interceptors ...Interceptor)
+	UseSwagger()
 	Run()
 }
 
@@ -32,7 +33,8 @@ func NewWebApplication(logger logging.Logger, appConfig config.ConfigSection) Ap
 	app := &webApplication{}
 	app.engine = gin.New()
 	app.routes = &RouteMap{
-		areaItems: make([]*areaItem, 0),
+		areaItems: make([]*AreaItem, 0),
+		appConfig: appConfig,
 	}
 	app.interceptors = make([]Interceptor, 0)
 	app.logger = logger
@@ -61,6 +63,12 @@ func (app *webApplication) UseInterceptors(interceptors ...Interceptor) {
 	app.interceptors = append(app.interceptors, interceptors...)
 }
 
+func (app *webApplication) UseSwagger() {
+	host := app.appConfig.MustGetString("swagger.host")
+	serviceUri := app.appConfig.MustGetString("swagger.serviceUri")
+	app.engine.GET("/swagger/*any", GetSwaggerHandler(host, serviceUri))
+}
+
 func (app *webApplication) Run() {
 	err := app.engine.Run(app.appConfig.MustGetString("service.addr"))
 	if err != nil {
@@ -68,7 +76,7 @@ func (app *webApplication) Run() {
 	}
 }
 
-func (app *webApplication) wrapGinHandler(routerItem *routeItem) gin.HandlerFunc {
+func (app *webApplication) wrapGinHandler(routerItem *RouteItem) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
