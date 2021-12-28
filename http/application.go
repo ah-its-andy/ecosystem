@@ -1,18 +1,14 @@
 package http
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/ah-its-andy/ecosystem/config"
+	"github.com/ah-its-andy/ecosystem/i18n"
 	"github.com/ah-its-andy/ecosystem/logging"
 	"github.com/gin-gonic/gin"
 )
-
-const TIPTYPE_ERROR = "error"
-const TIPTYPE_WARN = "warn"
-const TIPTYPE_NORMAL = "normal"
 
 type Application interface {
 	UseRouteMap(f func(*RouteMap))
@@ -55,7 +51,7 @@ func (app *webApplication) UseRouteMap(f func(*RouteMap)) {
 			} else if strings.Compare(strings.ToLower(r.method), "post") == 0 {
 				group.POST(r.uri, app.wrapGinHandler(r))
 			} else {
-				panic(errors.New("只支持 GET 和 POST 方法"))
+				panic(NewI18NError(i18n.ERR_UNSUPPORTED_METHOD, i18n.GetMessage(i18n.ERR_UNSUPPORTED_METHOD)))
 			}
 		}
 	}
@@ -84,8 +80,8 @@ func (app *webApplication) wrapGinHandler(routerItem *routeItem) gin.HandlerFunc
 			if err != nil {
 				app.logger.Error(err)
 				c.JSON(http.StatusOK, &ActionResult{
-					Code:    "498",
-					Msg:     "系统异常",
+					Code:    i18n.ERR_SERVICE_UNAVAILABLE_498,
+					Msg:     i18n.GetMessage(i18n.ERR_SERVICE_UNAVAILABLE_498),
 					TipType: TIPTYPE_ERROR,
 				})
 			}
@@ -96,8 +92,8 @@ func (app *webApplication) wrapGinHandler(routerItem *routeItem) gin.HandlerFunc
 			if err != nil {
 				app.logger.Error(err)
 				c.JSON(http.StatusOK, &ActionResult{
-					Code:    "499",
-					Msg:     "系统异常",
+					Code:    i18n.ERR_SERVICE_UNAVAILABLE_499,
+					Msg:     i18n.GetMessage(i18n.ERR_SERVICE_UNAVAILABLE_499),
 					TipType: TIPTYPE_ERROR,
 				})
 			}
@@ -135,8 +131,8 @@ func (interceptor *finalizeInterceptor) OnExecuted(uri string, method string, re
 		} else {
 			interceptor.logger.Error(err)
 			ctx.JSON(http.StatusOK, &ActionResult{
-				Code:    "500",
-				Msg:     "系统异常",
+				Code:    i18n.ERR_SERVICE_UNAVAILABLE_500,
+				Msg:     i18n.GetMessage(i18n.ERR_SERVICE_UNAVAILABLE_500),
 				TipType: TIPTYPE_ERROR,
 			})
 		}
