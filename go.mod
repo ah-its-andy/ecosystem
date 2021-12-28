@@ -1,4 +1,4 @@
-module ecosystem
+module github.com/ah-its-andy/ecosystem
 
 go 1.17
 
