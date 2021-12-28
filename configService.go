@@ -3,6 +3,7 @@ package ecosystem
 type ConfigSection interface {
 	GetValue(key string) (string, bool)
 	MustGetValue(key string) string
+	Keys() []string
 }
 
 type ConfigReader interface {

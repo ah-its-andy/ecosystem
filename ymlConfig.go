@@ -42,12 +42,18 @@ func (reader *YmlConfigReader) ReadFromFile(filePath string) (ConfigSection, err
 	if err != nil {
 		return nil, errors.Unwrap(err)
 	}
+	section.keys = make([]string, 0)
+	for key := range section.Values {
+		section.keys = append(section.keys, key)
+	}
 	return section, nil
 }
 
 type YmlConfigSection struct {
 	FilePath string
 	Values   map[string]string
+
+	keys []string
 }
 
 func (section *YmlConfigSection) GetValue(key string) (string, bool) {
@@ -60,4 +66,10 @@ func (section *YmlConfigSection) MustGetValue(key string) string {
 		return val
 	}
 	return ""
+}
+
+func (section *YmlConfigSection) Keys() []string {
+	keys := make([]string, len(section.keys))
+	copy(keys, section.keys)
+	return keys
 }

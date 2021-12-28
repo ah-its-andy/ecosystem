@@ -1,9 +1,46 @@
 package ecosystem
 
+import "strings"
+
 var _ ConfigSection = (*MultiConfigSection)(nil)
 
 type MultiConfigSection struct {
 	sections []ConfigSection
+	keys     []string
+}
+
+func NewMultiConfigSection(s []ConfigSection) {
+	r := &MultiConfigSection{
+		sections: make([]ConfigSection, len(s)),
+		keys:     make([]string, 0),
+	}
+	for i, sub := range s {
+		r.sections[i] = sub
+		if i == 0 {
+			r.keys = sub.Keys()
+		} else {
+			for _, key := range sub.Keys() {
+				if indexOf(r.keys, key) == -1 {
+					r.keys = append(r.keys, key)
+				}
+			}
+		}
+	}
+}
+
+func indexOf(a []string, e string) int {
+	for i, v := range a {
+		if strings.Compare(v, e) == 0 {
+			return i
+		}
+	}
+	return -1
+}
+
+func (section *MultiConfigSection) Keys() []string {
+	keys := make([]string, len(section.keys))
+	copy(keys, section.keys)
+	return keys
 }
 
 func (section *MultiConfigSection) GetValue(key string) (string, bool) {
@@ -39,4 +76,10 @@ func (section *emptyConfigSection) GetValue(key string) (string, bool) {
 }
 func (section *emptyConfigSection) MustGetValue(key string) string {
 	return ""
+}
+
+var emptyConfigSectionKeys = make([]string, 0)
+
+func (section *emptyConfigSection) Keys() []string {
+	return emptyConfigSectionKeys
 }
