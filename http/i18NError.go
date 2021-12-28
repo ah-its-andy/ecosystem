@@ -1,4 +1,4 @@
-package ecosystem
+package http
 
 var _ error = (*I18NError)(nil)
 
@@ -8,9 +8,9 @@ type I18NError struct {
 }
 
 func (e *I18NError) Error() string {
-	return e.message
+	return e.errorCode
 }
 
-func (e *I18NError) Code() string {
-	return e.errorCode
+func (e *I18NError) Message() string {
+	return e.message
 }

@@ -1,9 +1,12 @@
-package ecosystem
+package db
 
 import (
+	"github.com/ah-its-andy/ecosystem/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+const DsnConfigUri = "dsn.yml"
 
 type DbConnDsn interface {
 	NewDbConn() (*gorm.DB, error)
@@ -13,19 +16,16 @@ var _ DbConnDsn = (*MysqlDbConnDsn)(nil)
 
 type MysqlDbConnDsn struct {
 	Dsn string
+	*config.ConfigService
 }
 
-func NewMysqlDbConnDsn(keySpace string) DbConnDsn {
-	configService := GetEco().GetConfigService()
-	databaseConfig := configService.GetConfig(DsnConfigUri)
-	dbConnDsn := databaseConfig.MustGetValue(keySpace)
+func NewMysqlDbConnDsn(dbConnDsn string, keySpace string) DbConnDsn {
 	return &MysqlDbConnDsn{
 		Dsn: dbConnDsn,
 	}
 }
 
 func (dsn *MysqlDbConnDsn) NewDbConn() (*gorm.DB, error) {
-
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       dsn.Dsn,
 		DefaultStringSize:         256,   // string 类型字段的默认长度
