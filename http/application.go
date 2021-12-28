@@ -111,10 +111,10 @@ func (app *webApplication) wrapGinHandler(routerItem *RouteItem) gin.HandlerFunc
 }
 
 type ActionResult struct {
-	Code    string
-	Msg     string
-	TipType string
-	Data    interface{}
+	Code    string      `json:"code"`
+	Msg     string      `json:"msg"`
+	TipType string      `json:"tipType"`
+	Data    interface{} `json:"data"`
 }
 
 var _ Interceptor = (*finalizeInterceptor)(nil)
